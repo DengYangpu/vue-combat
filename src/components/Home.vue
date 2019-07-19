@@ -17,11 +17,12 @@
         <el-menu
           :collapse-transition="false"
           :collapse="isCollapse"
-          default-active="2"
           background-color="#333744"
           text-color="#fff"
           active-text-color="#409FFF"
           :unique-opened="true"
+          :router="true"
+          :default-active="actionPath"
           >
           <!-- 一级菜单 -->
           <el-submenu :index="menu.id + ''" v-for="menu in menus" :key="menu.id">
@@ -32,7 +33,7 @@
               <span>{{menu.authName}}</span>
             </template>
             <!-- 二级菜单 -->
-            <el-menu-item :index="subMenu.id + ''" v-for="subMenu in menu.children" :key="subMenu.id">
+            <el-menu-item @click="saveNavState('/' + subMenu.path)" :index="'/' + subMenu.path" v-for="subMenu in menu.children" :key="subMenu.id">
               <template slot="title">
                 <!-- 图标 -->
                 <i class="el-icon-menu"></i>
@@ -44,7 +45,9 @@
         </el-menu>
       </el-aside>
       <!-- 主体区域 -->
-      <el-main>Main</el-main>
+      <el-main>
+        <router-view></router-view>
+      </el-main>
     </el-container>
   </el-container>
 </template>
@@ -59,10 +62,12 @@ export default {
       '102': 'iconfont icon-danju',
       '145': 'iconfont icon-baobiao'
     },
-    isCollapse: false
+    isCollapse: false,
+    actionPath: ''
   }),
   created() {
     this.getMenus()
+    this.actionPath = sessionStorage.getItem('actionPath')
   },
   methods: {
     logout () {
@@ -81,6 +86,10 @@ export default {
     },
     toggleCollapse() {
       this.isCollapse = !this.isCollapse
+    },
+    saveNavState(actionPath) {
+      sessionStorage.setItem('actionPath', actionPath)
+      this.actionPath = actionPath
     }
   },
   computed: {
